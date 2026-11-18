@@ -73,7 +73,7 @@
     .extras{margin-top:10px;display:grid;gap:10px}
     .chevron{display:inline-block;transition:transform .2s;font-size:13px}
     .expanded .chevron{transform:rotate(180deg)}
-    .area-list{display:grid;gap:10px}
+    .area-list{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:10px}
     .area-card{display:flex;gap:12px;align-items:center;justify-content:space-between;background:white;border:1.5px solid var(--line);padding:15px;border-radius:17px;box-shadow:var(--shadow)}
     .area-info{min-width:0}
     .area-title{font-size:15px;font-weight:850;letter-spacing:-.025em;line-height:1.2}
@@ -82,6 +82,26 @@
     .area-entry input{width:100%;height:54px;border:1.5px solid #cbdadf;border-radius:12px;background:#f7fbfa;color:#0e4d4e;text-align:right;padding:0 38px 0 8px;font-weight:850;font-size:20px;outline:none;font-variant-numeric:tabular-nums}
     .area-entry input:focus{border-color:var(--teal);background:white}
     .area-entry span{position:absolute;right:10px;top:18px;font-size:13px;color:#69888c;font-weight:750;pointer-events:none}
+    .flag-card{min-width:0;max-width:100%;background:#fff;border:1.5px solid var(--line);border-radius:17px;padding:16px;box-shadow:var(--shadow)}
+    .flag-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .flag-total{font-size:19px;color:var(--teal);font-weight:900;white-space:nowrap;letter-spacing:-.04em}
+    .flag-total small{font-size:11px;letter-spacing:0;color:var(--muted);font-weight:750}
+    .flag-input-label{display:block;margin:17px 0 7px;color:var(--muted);font-weight:750;font-size:11px}
+    .flag-add-row{display:flex;gap:8px;align-items:stretch}
+    .flag-add-input{flex:1;min-width:0;min-height:52px;border:1.5px solid #cbdadf;border-radius:12px;padding:10px 12px;font-size:20px;font-weight:800;color:#16494a;background:#f7fbfa;outline:none;font-variant-numeric:tabular-nums}
+    .flag-add-input:focus{border-color:var(--teal);background:#fff}
+    .flag-add-button{min-width:99px;border:0;border-radius:12px;background:var(--teal);color:white;font-size:15px;font-weight:850;padding:0 15px}
+    .flag-entry-heading{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:12px;border-top:1px solid #ecf0f3;gap:10px}
+    .flag-entry-heading span{color:var(--muted);font-size:11px;font-weight:750}
+    .flag-undo,.flag-more{background:#e9f1f3;border:0;border-radius:9px;color:#315b61;font-weight:800;font-size:11px;padding:8px 10px}
+    .flag-items{display:grid;gap:6px;margin-top:10px}
+    .flag-item{background:#f7f9fb;border-radius:10px;padding:8px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px}
+    .flag-item span{color:#52697a}
+    .flag-item strong{font-size:14px;font-variant-numeric:tabular-nums}
+    .flag-remove{border:0;background:#f2e5e6;border-radius:7px;color:var(--red);width:29px;height:29px;font-size:19px}
+    .flag-empty{color:var(--muted);font-size:11px;margin-top:10px;line-height:1.5}
+    .flag-legacy{padding:8px 0;font-size:11px;color:#647989}
+    .flag-legacy button{margin-left:5px;border:0;background:transparent;color:var(--red);font-weight:800}
     .form-notes{margin-top:18px}
     .field textarea{resize:vertical;min-height:72px;line-height:1.4;font-size:15px}
     .quiet-note{margin-top:12px;color:#788998;font-size:11px;line-height:1.45;display:flex;align-items:flex-start;gap:8px}
@@ -193,7 +213,7 @@
       <button class="extra-toggle" id="toggleExtra" aria-expanded="false" type="button">Other structures <span class="chevron">⌄</span></button>
       <div class="extras" id="extraCounters" hidden></div>
 
-      <div class="section-intro"><div><h2>Rough area</h2><p>Enter estimated square metres, not pieces.</p></div><span class="micro">m²</span></div>
+      <div class="section-intro"><div><h2>Flag / infill areas</h2><p>Enter each section’s estimated m², then tap Add or Enter. Each amount is saved to a running total.</p></div><span class="micro">m²</span></div>
       <div class="area-list" id="areaList"></div>
       <div class="form-notes field"><label for="notes" class="field-label">Site notes (optional)</label><textarea id="notes" placeholder="Additional scope, location notes, exceptions..." maxlength="3000"></textarea></div>
       <div class="quiet-note">Counts and areas are estimates until verified by field measurement. Pull rates come from the attached maintenance pull sheet.</div>
@@ -202,7 +222,7 @@
 
     <section class="view" id="view-report" hidden aria-label="Inspection totals">
       <div class="report-hero"><div class="report-kicker">Estimated concrete replacement</div><div class="report-total" id="reportTotal">0.000<small>m³</small></div><div class="report-meta" id="reportMeta">Inspection details</div></div>
-      <div class="metric-grid"><div class="metric"><span>Pieces</span><strong id="reportPieces">0</strong></div><div class="metric"><span>Linear metres</span><strong id="reportLM">0.0</strong><em> LM</em></div><div class="metric"><span>Rough area</span><strong id="reportArea">0</strong><em> m²</em></div></div>
+      <div class="metric-grid"><div class="metric"><span>Pieces</span><strong id="reportPieces">0</strong></div><div class="metric"><span>Linear metres</span><strong id="reportLM">0.0</strong><em> LM</em></div><div class="metric"><span>Walk + infill area</span><strong id="reportArea">0</strong><em> m²</em></div></div>
       <h2 class="section-label">Structure breakdown</h2>
       <div class="report-list" id="reportRows"></div>
       <div class="panel noprint" style="margin-top:19px"><div class="panel-heading"><h2>Export this inspection</h2></div><div class="button-row"><button id="downloadCSV" class="primary-button" type="button">Download Excel CSV</button><button id="printReport" class="secondary-button" type="button">Print / Save PDF</button></div><div class="button-row" style="margin-top:9px"><button id="shareReport" class="secondary-button" type="button">Share summary</button><button id="editTally" class="secondary-button" type="button">Back to tally</button></div><div class="quiet-note">The CSV opens in Excel. On iPhone, Print lets you save or share a PDF from the print preview.</div></div>
@@ -222,8 +242,8 @@
 <script>
 (function(){
   'use strict';
-  // Source: user's Maint Pull.xls, Sheet1, rows 4–11, columns H (100 mm) and I (125 mm).
-  // Values are cubic metres per linear metre (LM) or per square metre (m²).
+  // Pulls sourced from the supplied Maint Pull.xls (100 / 125 mm selections).
+  // Rolled curb / monowalk pulls are per LM; separate walk and flag pulls are per m².
   const STRUCTURES = [
     {id:'c250',name:'250 mm Rolled Curb',short:'250 Rolled Curb',type:'count',section:'main',rates:{100:.115,125:.115}},
     {id:'mono15',name:'1.5 m Rolled Mono',short:'1.5 Rolled Mono',type:'count',section:'main',rates:{100:.254,125:.2915}},
@@ -231,8 +251,12 @@
     {id:'c500',name:'500 mm Rolled Curb',short:'500 Rolled Curb',type:'count',section:'extra',rates:{100:.141,125:.141}},
     {id:'mono11',name:'1.1 m Rolled Mono',short:'1.1 Rolled Mono',type:'count',section:'extra',rates:{100:.214,125:.2415}},
     {id:'swale',name:'600 mm Drainage Swale',short:'600 mm Swale',type:'count',section:'extra',rates:{100:.145,125:.145}},
-    {id:'separateWalk',name:'Separate Sidewalk',short:'Separate Sidewalk',type:'area',section:'main',rates:{100:.100,125:.125}},
+    {id:'sw15',name:'1.5 m Separate Sidewalk',short:'1.5 m Separate Walk',type:'count',section:'main',width:1.5,rates:{100:.100,125:.125}},
+    {id:'sw20',name:'2.0 m Separate Sidewalk',short:'2.0 m Separate Walk',type:'count',section:'main',width:2.0,rates:{100:.100,125:.125}},
+    {id:'sw25',name:'2.5 m Separate Sidewalk',short:'2.5 m Separate Walk',type:'count',section:'extra',width:2.5,rates:{100:.100,125:.125}},
+    {id:'sw30',name:'3.0 m Separate Sidewalk',short:'3.0 m Separate Walk',type:'count',section:'extra',width:3.0,rates:{100:.100,125:.125}},
     {id:'flagInfill',name:'Flag / Median Infill',short:'Flag / Infill',type:'area',section:'main',rates:{100:.100,125:.125}},
+    {id:'separateWalk',name:'Prior separate walk (m²)',short:'Prior Separate Walk',type:'area',section:'legacy',rates:{100:.100,125:.125}},
     {id:'commercial',name:'Commercial Separate Walk / Fill',short:'Commercial Walk / Fill',type:'area',section:'extra',rates:{100:.150,125:.150}}
   ];
   const PIECE_LENGTH=1.5;
@@ -246,21 +270,25 @@
   const niceDate=(s)=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return 'No date';const [y,m,d]=s.split('-');return `${m}/${d}/${y}`};
   const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
   const makeId=()=>typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():`inspection-${Date.now()}-${Math.floor(Math.random()*1e9)}`;
-  const fresh=()=>({id:makeId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),phase:'',walk:'',date:today(),thickness:125,counts:{},areas:{},notes:''});
+  const fresh=()=>({id:makeId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),phase:'',walk:'',date:today(),thickness:125,counts:{},areas:{},flagEntries:[],notes:''});
   const rate=(s,i)=>s.rates[i.thickness]??s.rates[125];
   const countFor=(i,id)=>Math.floor(clampNum(i.counts?.[id],0,1000000));
-  const areaFor=(i,id)=>clampNum(i.areas?.[id]);
+  const legacyAreaFor=(i,id)=>clampNum(i.areas?.[id]);
+  const flagEntriesFor=(i)=>Array.isArray(i.flagEntries)?i.flagEntries:[];
+  const areaFor=(i,id)=>legacyAreaFor(i,id)+(id==='flagInfill'?flagEntriesFor(i).reduce((sum,e)=>sum+clampNum(e.sqm),0):0);
   const parseArea=(v)=>clampNum(String(v).trim().replace(',','.'));
-  let storageOK=true,records=[],currentId='',extraOpen=false,view='tally',toastTimer=null;
+  let storageOK=true,records=[],currentId='',extraOpen=false,view='tally',toastTimer=null,showAllFlag=false;
   function readStorage(key){try{return localStorage.getItem(key)}catch(e){storageOK=false;return null}}
   function writeStorage(key,value){try{localStorage.setItem(key,value);return true}catch(e){storageOK=false;$('saveStatus').innerHTML='<span class="status-dot" style="background:#ffb36a"></span> Export backup';return false}}
   function sanitize(d){
     if(!d||typeof d!=='object'||Array.isArray(d))return null;
     let id=(typeof d.id==='string'&&d.id.length<150)?d.id:makeId();
     let counts={},areas={};
-    for(const s of STRUCTURES){if(s.type==='count') counts[s.id]=countFor(d,s.id);else areas[s.id]=areaFor(d,s.id)}
+    for(const s of STRUCTURES){if(s.type==='count') counts[s.id]=countFor(d,s.id);else areas[s.id]=legacyAreaFor(d,s.id)}
     let date=typeof d.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d.date)?d.date:today();
-    return {id,createdAt:typeof d.createdAt==='string'?d.createdAt:new Date().toISOString(),updatedAt:typeof d.updatedAt==='string'?d.updatedAt:new Date().toISOString(),phase:String(d.phase??'').slice(0,80),walk:String(d.walk??'').slice(0,80),date,thickness:Number(d.thickness)===100?100:125,counts,areas,notes:String(d.notes??'').slice(0,3000)};
+    // Keep old scalar quantities from previous versions and new individual entries separately.
+    let flagEntries=Array.isArray(d.flagEntries)?d.flagEntries.slice(0,3000).map(e=>({id:(typeof e?.id==='string'&&e.id.length<150)?e.id:makeId(),sqm:clampNum(e?.sqm)})).filter(e=>e.sqm>0):[];
+    return {id,createdAt:typeof d.createdAt==='string'?d.createdAt:new Date().toISOString(),updatedAt:typeof d.updatedAt==='string'?d.updatedAt:new Date().toISOString(),phase:String(d.phase??'').slice(0,80),walk:String(d.walk??'').slice(0,80),date,thickness:Number(d.thickness)===100?100:125,counts,areas,flagEntries,notes:String(d.notes??'').slice(0,3000)};
   }
   function init(){
     try{let data=JSON.parse(readStorage(STORE)||'[]');if(Array.isArray(data))records=data.map(sanitize).filter(Boolean).slice(0,3000)}catch(e){records=[]}
@@ -283,20 +311,25 @@
       const q=s.type==='count'?countFor(i,s.id):areaFor(i,s.id);
       if(!q)continue;
       const length=s.type==='count'?q*PIECE_LENGTH:0;
-      const volume=(s.type==='count'?length:q)*rate(s,i);
-      if(s.type==='count'){pieces+=q;lm+=length}else{area+=q}
-      m3+=volume;items.push({s,quantity:q,lm:length,volume,rate:rate(s,i)});
+      const sqm=s.width?length*s.width:(s.type==='area'?q:0);
+      const volume=(s.width?sqm:(s.type==='count'?length:q))*rate(s,i);
+      if(s.type==='count'){pieces+=q;lm+=length}
+      area+=sqm;
+      m3+=volume;items.push({s,quantity:q,lm:length,sqm,volume,rate:rate(s,i)});
     }
     return{pieces,lm,area,m3,items};
   }
   function inspectionName(i){let parts=[];if(i.phase.trim())parts.push('Phase '+i.phase.trim());if(i.walk.trim())parts.push('Walk '+i.walk.trim());return parts.join(' · ')||'Untitled inspection'}
-  function countHTML(s,i){let count=countFor(i,s.id),lm=count*PIECE_LENGTH;return `<div class="counter-card${count?' active':''}" data-card="${s.id}"><div class="counter-info"><div class="counter-name">${esc(s.name)}</div><div class="counter-rate">Pull: ${pullFmt(rate(s,i))} m³/LM</div><div class="counter-length" data-length="${s.id}">${numFmt(lm)} LM marked</div></div><div class="counter-actions"><button class="minus" type="button" data-adjust="-1" data-id="${s.id}" aria-label="Remove one piece of ${esc(s.name)}" ${count?'':'disabled'}>−</button><button class="plus" type="button" data-adjust="1" data-id="${s.id}" aria-label="Add one piece of ${esc(s.name)}"><span class="plus-symbol">+</span><span class="plus-count" data-count="${s.id}">${count}</span><span class="plus-label">Pieces</span></button></div></div>`}
+  function countDetail(s,count){const lm=count*PIECE_LENGTH;return s.width?`${numFmt(lm)} LM · ${numFmt(lm*s.width)} m² sidewalk`:`${numFmt(lm)} LM marked`}
+  function countHTML(s,i){let count=countFor(i,s.id);return `<div class="counter-card${count?' active':''}" data-card="${s.id}"><div class="counter-info"><div class="counter-name">${esc(s.name)}</div><div class="counter-rate">${s.width?`1 piece = 1.5 × ${numFmt(s.width)} m · Pull: ${pullFmt(rate(s,i))} m³/m²`:`Pull: ${pullFmt(rate(s,i))} m³/LM`}</div><div class="counter-length" data-length="${s.id}">${countDetail(s,count)}</div></div><div class="counter-actions"><button class="minus" type="button" data-adjust="-1" data-id="${s.id}" aria-label="Remove one piece of ${esc(s.name)}" ${count?'':'disabled'}>−</button><button class="plus" type="button" data-adjust="1" data-id="${s.id}" aria-label="Add one piece of ${esc(s.name)}"><span class="plus-symbol">+</span><span class="plus-count" data-count="${s.id}">${count}</span><span class="plus-label">Pieces</span></button></div></div>`}
   function areaHTML(s,i){let q=areaFor(i,s.id);return `<label class="area-card"><div class="area-info"><div class="area-title">${esc(s.name)}</div><div class="area-hint">Pull: ${pullFmt(rate(s,i))} m³/m²</div></div><div class="area-entry"><input data-area="${s.id}" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="${q?esc(numFmt(q)):''}" aria-label="${esc(s.name)} estimated area in square metres" /><span>m²</span></div></label>`}
-  function renderCounters(){let i=active();$('mainCounters').innerHTML=STRUCTURES.filter(s=>s.type==='count'&&s.section==='main').map(s=>countHTML(s,i)).join('');$('extraCounters').innerHTML=STRUCTURES.filter(s=>s.type==='count'&&s.section==='extra').map(s=>countHTML(s,i)).join('');$('extraCounters').hidden=!extraOpen;$('toggleExtra').classList.toggle('expanded',extraOpen);$('toggleExtra').setAttribute('aria-expanded',String(extraOpen));$('areaList').innerHTML=STRUCTURES.filter(s=>s.type==='area').map(s=>`<div${s.section==='extra'?' data-extra-area="true"':''}${s.section==='extra'&&!extraOpen?' hidden':''}>${areaHTML(s,i)}</div>`).join('')}
+  function flagCardHTML(i){return `<section class="flag-card"><div class="flag-head"><div><div class="area-title">Flag / Median Infill</div><div class="area-hint">Pull: ${pullFmt(rate(STRUCTURES.find(s=>s.id==='flagInfill'),i))} m³/m² · Add multiple estimates</div></div><div class="flag-total"><span id="flagTotal">0</span> <small>m²</small></div></div><form id="flagEntryForm"><label class="flag-input-label" for="flagNewArea">New section estimate (m²)</label><div class="flag-add-row"><input class="flag-add-input" id="flagNewArea" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="e.g. 4.5" aria-label="Estimated square metres to add" /><button class="flag-add-button" type="submit">+ Add</button></div></form><div id="flagEntryHistory"></div></section>`}
+  function renderFlagUI(){let i=active(),entries=flagEntriesFor(i),history=$('flagEntryHistory'),sum=$('flagTotal');if(!history||!sum)return;sum.textContent=numFmt(areaFor(i,'flagInfill'));let base=legacyAreaFor(i,'flagInfill');let recent=showAllFlag?entries:entries.slice(-6);history.innerHTML=`<div class="flag-entry-heading"><span>${entries.length} saved section${entries.length===1?'':'s'}</span><button type="button" class="flag-undo" data-flag-undo ${entries.length?'':'disabled'}>Undo last</button></div>${base?`<div class="flag-legacy">Previous saved total: ${numFmt(base)} m² <button type="button" data-clear-prior-flag>Clear prior total</button></div>`:''}${recent.length?`<div class="flag-items">${recent.slice().reverse().map((e,idx)=>`<div class="flag-item"><span>Section ${entries.length-idx}</span><strong>+ ${numFmt(e.sqm)} m²</strong><button class="flag-remove" type="button" data-remove-flag="${esc(e.id)}" aria-label="Remove ${numFmt(e.sqm)} square metre section">×</button></div>`).join('')}</div>`:`<div class="flag-empty">Enter a rough area and tap Add. The total will keep accumulating.</div>`}${entries.length>6?`<button type="button" class="flag-more" data-toggle-flag style="margin-top:10px">${showAllFlag?'Show recent only':`Show all ${entries.length} entries`}</button>`:''}`}
+  function renderCounters(){let i=active();$('mainCounters').innerHTML=STRUCTURES.filter(s=>s.type==='count'&&s.section==='main').map(s=>countHTML(s,i)).join('');$('extraCounters').innerHTML=STRUCTURES.filter(s=>s.type==='count'&&s.section==='extra').map(s=>countHTML(s,i)).join('');$('extraCounters').hidden=!extraOpen;$('toggleExtra').classList.toggle('expanded',extraOpen);$('toggleExtra').setAttribute('aria-expanded',String(extraOpen));$('areaList').innerHTML=flagCardHTML(i)+STRUCTURES.filter(s=>s.type==='area'&&s.id!=='flagInfill'&&(s.section!=='legacy'||areaFor(i,s.id)>0)).map(s=>`<div${s.section==='extra'?' data-extra-area="true"':''}${s.section==='extra'&&!extraOpen?' hidden':''}>${areaHTML(s,i)}</div>`).join('');renderFlagUI()}
   function renderForm(){let i=active();$('phase').value=i.phase;$('walk').value=i.walk;$('inspectionDate').value=i.date;$('notes').value=i.notes;for(const b of document.querySelectorAll('[data-thickness]')){b.classList.toggle('selected',Number(b.dataset.thickness)===i.thickness)};renderCounters();updateReadouts()}
   function updateReadouts(){let i=active(),t=calculate(i);$('dockPieces').textContent=t.pieces;$('dockLM').textContent=fmt(t.lm,1);$('dockM3').textContent=fmt(t.m3,3);$('totalPiecesNote').textContent=t.pieces+' '+(t.pieces===1?'piece':'pieces');}
   function renderReport(){let i=active(),t=calculate(i);$('reportTotal').innerHTML=`${fmt(t.m3,3)}<small>m³</small>`;$('reportMeta').textContent=inspectionName(i)+'  ·  '+niceDate(i.date)+'  ·  '+i.thickness+' mm slab selection';$('reportPieces').textContent=t.pieces;$('reportLM').textContent=fmt(t.lm,1);$('reportArea').textContent=numFmt(t.area);
-    $('reportRows').innerHTML=t.items.length?t.items.map(x=>`<div class="report-item"><div><strong>${esc(x.s.name)}</strong><span>${x.s.type==='count'?`${x.quantity} piece${x.quantity===1?'':'s'} × 1.5 m = ${fmt(x.lm,1)} LM × ${pullFmt(x.rate)} m³/LM`:`${numFmt(x.quantity)} m² × ${pullFmt(x.rate)} m³/m²`}</span></div><div class="report-vol">${fmt(x.volume,3)} <small>m³</small></div></div>`).join(''):'<div class="empty"><strong>No quantities entered yet</strong>Go to Tally and start adding pieces or square metres.</div>';
+    $('reportRows').innerHTML=t.items.length?t.items.map(x=>`<div class="report-item"><div><strong>${esc(x.s.name)}</strong><span>${x.s.width?`${x.quantity} pcs × 1.5 m × ${numFmt(x.s.width)} m = ${numFmt(x.sqm)} m² × ${pullFmt(x.rate)} m³/m²`:(x.s.type==='count'?`${x.quantity} piece${x.quantity===1?'':'s'} × 1.5 m = ${fmt(x.lm,1)} LM × ${pullFmt(x.rate)} m³/LM`:`${numFmt(x.quantity)} m² × ${pullFmt(x.rate)} m³/m²`)}</span></div><div class="report-vol">${fmt(x.volume,3)} <small>m³</small></div></div>`).join(''):'<div class="empty"><strong>No quantities entered yet</strong>Go to Tally and start adding pieces or square metres.</div>';
     $('printNotes').textContent=i.notes?('Field notes: '+i.notes):'Estimated quantities based on visual field tally; confirm before ordering concrete.';
   }
   function renderSaved(){
@@ -305,24 +338,39 @@
   }
   function renderAll(){renderForm();renderReport();renderSaved()}
   function setView(next){view=next;for(const name of ['tally','report','saved']){$('view-'+name).hidden=next!==name;let tab=$('tab-'+name);tab.classList.toggle('active',next===name);tab.setAttribute('aria-selected',String(next===name));tab.tabIndex=next===name?0:-1;}$('liveDock').hidden=next!=='tally';$('pageTitle').textContent=next==='tally'?'Quick scope count':next==='report'?'Inspection totals':'Inspection history';$('pageSubtitle').textContent=next==='tally'?'Tap a structure each time you mark a 1.5 m piece for replacement.':next==='report'?'Your live quantity and concrete volume estimate.':'Open an existing inspection or start a new one.';if(next==='report')renderReport();if(next==='saved')renderSaved();window.scrollTo(0,0)}
-  function tapCount(id,adjust){let s=STRUCTURES.find(x=>x.id===id&&x.type==='count');if(!s)return;let i=active(),old=countFor(i,id),next=Math.max(0,Math.min(1000000,old+adjust));if(next===old)return;i.counts[id]=next;persist();let card=document.querySelector(`[data-card="${id}"]`);if(card){card.classList.toggle('active',next>0);card.querySelector(`[data-count="${id}"]`).textContent=next;card.querySelector(`[data-length="${id}"]`).textContent=numFmt(next*1.5)+' LM marked';card.querySelector('.minus').disabled=next===0;}updateReadouts();if(navigator.vibrate&&adjust>0)try{navigator.vibrate(10)}catch(e){}}
+  function tapCount(id,adjust){let s=STRUCTURES.find(x=>x.id===id&&x.type==='count');if(!s)return;let i=active(),old=countFor(i,id),next=Math.max(0,Math.min(1000000,old+adjust));if(next===old)return;i.counts[id]=next;persist();let card=document.querySelector(`[data-card="${id}"]`);if(card){card.classList.toggle('active',next>0);card.querySelector(`[data-count="${id}"]`).textContent=next;card.querySelector(`[data-length="${id}"]`).textContent=countDetail(s,next);card.querySelector('.minus').disabled=next===0;}updateReadouts();if(navigator.vibrate&&adjust>0)try{navigator.vibrate(10)}catch(e){}}
   function toast(text){const t=$('toast');t.textContent=text;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1900)}
   function newInspection(){const n=fresh();records.push(n);currentId=n.id;persist();renderAll();setView('tally');toast('New inspection created')}
-  function clearTally(){if(!window.confirm('Clear all counts and rough areas for this inspection? The phase, walk, and notes will stay.'))return;let i=active();i.counts={};i.areas={};persist();renderAll();toast('Tally cleared')}
+  function clearTally(){if(!window.confirm('Clear all counts and rough areas for this inspection? The phase, walk, and notes will stay.'))return;let i=active();i.counts={};i.areas={};i.flagEntries=[];persist();renderAll();toast('Tally cleared')}
   function deleteInspection(id){let i=records.find(r=>r.id===id);if(!i)return;if(!window.confirm('Delete '+inspectionName(i)+'? This cannot be undone.'))return;records=records.filter(r=>r.id!==id);if(!records.length){let f=fresh();records=[f];currentId=f.id}else if(currentId===id)currentId=records[0].id;persist();renderAll();toast('Inspection deleted')}
   function fileName(i,suffix){let part=[i.phase?'phase-'+i.phase:'phase-unknown',i.walk?'walk-'+i.walk:'walk-unknown',i.date].join('_').replace(/[^a-zA-Z0-9_-]/g,'-');return 'maintenance_tally_'+part+suffix}
   function download(filename,contents,type){let blob=new Blob([contents],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000)}
   function csvQuote(s){return '"'+String(s??'').replace(/"/g,'""')+'"'}
-  function csvExport(){const i=active(),t=calculate(i);let rows=[['Phase','Walk','Inspection date','Thickness mm','Structure','Unit','Pieces','Linear metres','Area m2','Pull m3 per unit','Volume m3']];for(const s of STRUCTURES){let q=s.type==='count'?countFor(i,s.id):areaFor(i,s.id),length=s.type==='count'?q*1.5:0,volume=(s.type==='count'?length:q)*rate(s,i);rows.push([i.phase,i.walk,i.date,i.thickness,s.name,s.type==='count'?'LM':'m2',s.type==='count'?q:'',s.type==='count'?length.toFixed(2):'',s.type==='area'?q.toFixed(2):'',rate(s,i),volume.toFixed(4)])}rows.push(['TOTAL','','','','','',''+t.pieces,t.lm.toFixed(2),t.area.toFixed(2),'',t.m3.toFixed(4)]);rows.push(['NOTES',i.notes]);download(fileName(i,'.csv'),'\ufeff'+rows.map(r=>r.map(csvQuote).join(',')).join('\r\n'),'text/csv;charset=utf-8');toast('Excel-compatible CSV exported')}
-  function reportText(){let i=active(),t=calculate(i);let lines=[`MAINTENANCE INSPECTION TALLY`,inspectionName(i),`Date: ${niceDate(i.date)} | Thickness: ${i.thickness} mm`,''];for(let item of t.items){lines.push(`${item.s.name}: ${item.s.type==='count'?`${item.quantity} pcs / ${fmt(item.lm,1)} LM`:`${numFmt(item.quantity)} m²`} → ${fmt(item.volume,3)} m³`)}lines.push('',`TOTAL: ${t.pieces} pieces / ${fmt(t.lm,1)} LM / ${numFmt(t.area)} m²`, `ESTIMATED CONCRETE: ${fmt(t.m3,3)} m³`);if(i.notes)lines.push('',`Notes: ${i.notes}`);return lines.join('\n')}
+  function csvExport(){const i=active(),t=calculate(i);let rows=[['Phase','Walk','Inspection date','Thickness mm','Structure','Unit','Pieces','Linear metres','Area m2','Pull m3 per unit','Volume m3']];for(const s of STRUCTURES){let q=s.type==='count'?countFor(i,s.id):areaFor(i,s.id),length=s.type==='count'?q*1.5:0,sqm=s.width?length*s.width:(s.type==='area'?q:0),volume=(s.width?sqm:(s.type==='count'?length:q))*rate(s,i);rows.push([i.phase,i.walk,i.date,i.thickness,s.name,s.width||s.type==='area'?'m2':'LM',s.type==='count'?q:'',s.type==='count'?length.toFixed(2):'',s.width||s.type==='area'?sqm.toFixed(2):'',rate(s,i),volume.toFixed(4)])}rows.push(['TOTAL','','','','','',''+t.pieces,t.lm.toFixed(2),t.area.toFixed(2),'',t.m3.toFixed(4)]);rows.push(['NOTES',i.notes]);rows.push([]);rows.push(['FLAG / INFILL SECTION ENTRIES','Area m2']);if(legacyAreaFor(i,'flagInfill'))rows.push(['Previous saved total',legacyAreaFor(i,'flagInfill').toFixed(2)]);flagEntriesFor(i).forEach((e,idx)=>rows.push(['Section '+(idx+1),e.sqm.toFixed(2)]));download(fileName(i,'.csv'),'\ufeff'+rows.map(r=>r.map(csvQuote).join(',')).join('\r\n'),'text/csv;charset=utf-8');toast('Excel-compatible CSV exported')}
+  function reportText(){let i=active(),t=calculate(i);let lines=[`MAINTENANCE INSPECTION TALLY`,inspectionName(i),`Date: ${niceDate(i.date)} | Thickness: ${i.thickness} mm`,''];for(let item of t.items){lines.push(`${item.s.name}: ${item.s.width?`${item.quantity} pcs / ${fmt(item.lm,1)} LM / ${numFmt(item.sqm)} m²`:(item.s.type==='count'?`${item.quantity} pcs / ${fmt(item.lm,1)} LM`:`${numFmt(item.quantity)} m²`)} → ${fmt(item.volume,3)} m³`)}lines.push('',`TOTAL: ${t.pieces} pieces / ${fmt(t.lm,1)} LM / ${numFmt(t.area)} m²`, `ESTIMATED CONCRETE: ${fmt(t.m3,3)} m³`);if(i.notes)lines.push('',`Notes: ${i.notes}`);return lines.join('\n')}
   async function shareReport(){const text=reportText();if(navigator.share){try{await navigator.share({title:'Maintenance Tally',text});return}catch(e){if(e.name==='AbortError')return}}if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(text);toast('Summary copied to clipboard');return}catch(e){}}window.prompt('Copy this summary:',text)}
-  function backup(){download('maintenance_tally_backup_'+today()+'.json',JSON.stringify({app:'Marmot Maintenance Tally',version:1,exportedAt:new Date().toISOString(),inspections:records},null,2),'application/json;charset=utf-8');toast('Backup downloaded')}
+  function backup(){download('maintenance_tally_backup_'+today()+'.json',JSON.stringify({app:'Marmot Maintenance Tally',version:2,exportedAt:new Date().toISOString(),inspections:records},null,2),'application/json;charset=utf-8');toast('Backup downloaded')}
   async function importBackup(file){if(!file)return;try{let content=await file.text();let parsed=JSON.parse(content);if(!parsed||!Array.isArray(parsed.inspections)||parsed.inspections.length>3000)throw new Error('Invalid backup format');let imported=parsed.inspections.map(sanitize).filter(Boolean);if(!imported.length)throw new Error('No inspections found');if(!window.confirm(`Import ${imported.length} inspection(s)? Matching records will use the newer version.`))return;const map=new Map(records.map(r=>[r.id,r]));for(let r of imported){let old=map.get(r.id);if(!old||String(r.updatedAt)>String(old.updatedAt))map.set(r.id,r)}records=[...map.values()];persist();renderAll();toast(`${imported.length} inspection(s) imported`)}catch(e){window.alert('Could not import backup: '+e.message)}finally{$('importJSON').value=''}}
+  function addFlagEntry(raw){
+    let value=String(raw??'').trim().replace(',','.');
+    let sqm=Number(value);
+    if(!value||!Number.isFinite(sqm)||sqm<=0||sqm>100000){toast('Enter an area greater than 0 m²');return false}
+    let i=active();if(!Array.isArray(i.flagEntries))i.flagEntries=[];
+    if(i.flagEntries.length>=3000){toast('Maximum section entries reached');return false}
+    i.flagEntries.push({id:makeId(),sqm:Math.round(sqm*1000)/1000});persist();renderFlagUI();updateReadouts();return true;
+  }
+  function removeFlagEntry(id){const i=active(),entries=flagEntriesFor(i),idx=entries.findIndex(e=>e.id===id);if(idx<0)return;entries.splice(idx,1);persist();renderFlagUI();updateReadouts();toast('Section removed')}
   function bindEvents(){
     document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
     for(let [id,key] of [['phase','phase'],['walk','walk'],['inspectionDate','date'],['notes','notes']]){$(id).addEventListener('input',(e)=>update({[key]:e.target.value}));$(id).addEventListener('change',(e)=>update({[key]:e.target.value}))}
     document.querySelectorAll('[data-thickness]').forEach(b=>b.addEventListener('click',()=>{let i=active();i.thickness=Number(b.dataset.thickness);persist();renderForm();toast('Pull values updated')}));
-    document.addEventListener('click',(e)=>{let b=e.target.closest('[data-adjust]');if(b){tapCount(b.dataset.id,Number(b.dataset.adjust));return}let op=e.target.closest('[data-open]');if(op){currentId=op.dataset.open;writeStorage(CURRENT,currentId);renderAll();setView('tally');return}let del=e.target.closest('[data-delete]');if(del){deleteInspection(del.dataset.delete);return}});
+    document.addEventListener('click',(e)=>{let b=e.target.closest('[data-adjust]');if(b){tapCount(b.dataset.id,Number(b.dataset.adjust));return}
+      let removed=e.target.closest('[data-remove-flag]');if(removed){removeFlagEntry(removed.dataset.removeFlag);return}
+      if(e.target.closest('[data-flag-undo]')){const entries=flagEntriesFor(active());if(entries.length)removeFlagEntry(entries[entries.length-1].id);return}
+      if(e.target.closest('[data-toggle-flag]')){showAllFlag=!showAllFlag;renderFlagUI();return}
+      if(e.target.closest('[data-clear-prior-flag]')){if(window.confirm('Clear the previous flag / infill area total?')){active().areas.flagInfill=0;persist();renderFlagUI();updateReadouts()}return}
+      let op=e.target.closest('[data-open]');if(op){currentId=op.dataset.open;writeStorage(CURRENT,currentId);renderAll();setView('tally');return}let del=e.target.closest('[data-delete]');if(del){deleteInspection(del.dataset.delete);return}});
+    $('areaList').addEventListener('submit',(e)=>{if(e.target.id!=='flagEntryForm')return;e.preventDefault();let input=$('flagNewArea');if(input&&addFlagEntry(input.value)){input.value='';input.focus()}});
     $('areaList').addEventListener('input',(e)=>{if(!e.target.matches('[data-area]'))return;active().areas[e.target.dataset.area]=parseArea(e.target.value);persist();updateReadouts()});
     $('areaList').addEventListener('blur',(e)=>{if(!e.target.matches('[data-area]'))return;let val=areaFor(active(),e.target.dataset.area);e.target.value=val?numFmt(val):''},true);
     $('toggleExtra').addEventListener('click',()=>{extraOpen=!extraOpen;writeStorage(MORE,extraOpen?'yes':'no');renderCounters()});

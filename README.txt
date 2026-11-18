@@ -1,50 +1,38 @@
-MARMOT MAINTENANCE TALLY - IPHONE APP
-====================================
+MARMOT MAINTENANCE TALLY - IPHONE APP (UPDATED)
+================================================
 
-WHAT IT DOES
-- Enter Phase, Walk, and Date of Inspection.
-- Tap + to count each 1.5 metre replacement piece; use - to correct mistakes.
-- Enter rough square metres for Separate Sidewalk and Flag / Median Infill.
-- Select 125 mm (default) or 100 mm slab thickness. Concrete pulls change accordingly.
-- Optional extra structures: 500 mm rolled curb, 1.1 m rolled mono, 600 mm drainage swale, and commercial walk/fill.
-- Automatically shows number of pieces, linear metres, rough square metres, and estimated total cubic metres.
-- Records autosave on the device; multiple separate inspections are supported.
-- Download an Excel-compatible CSV, print/save a PDF, share a text summary, or back up inspections as JSON.
+UPLOAD TO EXISTING GITHUB REPOSITORY
+1. Extract the ZIP file.
+2. Drag its 7 files into the ROOT of the SAME GitHub repository as the existing app.
+3. The filenames are identical to the original upload: index.html, README.txt,
+   sw.js, manifest.webmanifest, apple-touch-icon.png, icon-192.png and icon-512.png.
+4. Choose to replace/commit the existing files (do not create a new subfolder).
+5. After GitHub Pages deploys, reopen the same app URL on your iPhone.
+6. If your Home Screen app is showing an old cached view, close it and reopen;
+   if necessary open the website in Safari online and reload to update cache.
 
-INSTALL ON YOUR IPHONE USING GITHUB PAGES
-1. Extract this ZIP file. Keep all the files together.
-2. Create a GitHub repository (or use a dedicated repo for this app).
-3. Upload ALL the files in this folder to the repository root. The homepage must be named index.html.
-4. In your GitHub repo go to Settings > Pages > Build and deployment.
-5. Choose Deploy from a branch > main > / (root) > Save.
-6. Open your published GitHub Pages URL in Safari on your iPhone.
-7. Tap Safari's Share icon > Add to Home Screen > Add.
-8. Open the new Maintenance Tally icon from your Home Screen.
+KEY FEATURES
+- Enter phase, walk and inspection date.
+- Tap to count any 1.5-m-long piece of rolled curb, monowalk or separate walk.
+- Main tally: 1.5 m and 2.0 m separate sidewalk, plus the original curb/mono.
+- Other structures: 2.5 m and 3.0 m separate sidewalk, plus other existing items.
+- For separate walk, each piece's area = walk width x 1.5 m.
+- Volume = area x pull: 0.100 m3/m2 at 100 mm or 0.125 m3/m2 at 125 mm.
+- Flag / Infill: type each rough m2 estimate, then press Enter / Done or tap
+  '+ Add'. Each entry is stored separately and added to the running total.
+- Undo latest flag entry, remove earlier sections, and see all section entries.
+- Inspection totals, CSV export, print/PDF and JSON backup still work.
+- Existing saved inspection records are preserved under the same local storage
+  keys. Any previous Separate Sidewalk m2 total is preserved as a prior value.
 
-NOTES
-- This app requires no login, server, database, or API. No inspection data is sent to GitHub or to Marmot.
-- GitHub Pages serves only the app's code, icons and cached support files.
-- Inspection data is saved in this browser/Home Screen app's LOCAL storage. It does not sync between devices.
-- iPhone Safari and the installed Home Screen app may maintain separate storage; use the JSON backup for migration.
-- Use Inspections > Export backup regularly; deleting Safari app/site data can erase local records.
-- The app's offline ability begins after it is first successfully loaded online and cached.
-- Opening index.html as a file directly may not support Home Screen install or persistent local storage.
-- CSV files open in Microsoft Excel and can be saved as regular .xlsx files if desired.
-- To make a PDF: Totals > Print / Save PDF, then in iOS print preview use Share > Save to Files.
+EXAMPLES at 125 mm thickness
+  One 1.5 m wide separate walk piece:
+     1.5 m x 1.5 m = 2.25 m2; x 0.125 = 0.28125 m3
+  One 2.0 m wide separate walk piece:
+     2.0 m x 1.5 m = 3.0 m2; x 0.125 = 0.375 m3
+  Flag sections entered as 2.5 m2, 4.0 m2 and 1.5 m2:
+     total = 8.0 m2; x 0.125 = 1.0 m3
 
-PULL SOURCES: Maint Pull.xls (Sheet1, rows 4-11)
-------------------------------------------------
-  250 Rolled Curb:                 0.115 m3/LM (constant)
-  500 Rolled Curb:                 0.141 m3/LM (constant)
-  1.1 Rolled Mono (100 / 125):    0.214 / 0.2415 m3/LM
-  1.5 Rolled Mono (100 / 125):    0.254 / 0.2915 m3/LM
-  2.0 Rolled Mono (100 / 125):    0.304 / 0.354 m3/LM
-  Separate Sidewalk/Flag/Infill:  0.100 / 0.125 m3/m2
-  Commercial Walk / Fill:        0.150 m3/m2 (constant)
-  600 mm Drainage Swale:          0.145 m3/LM (constant)
-
-All counted pieces are estimated at 1.5 LM, including curb and swale.
-The 100 / 125 mm selector only affects structures with two rates in the supplied file.
-The two separate area boxes use the SAME pull from the combined spreadsheet row.
-
-This is a preliminary scope estimate, not a field measurement or concrete order.
+The app is a standalone GitHub Pages web app. Data is saved on your device, not
+on GitHub. Export a JSON backup periodically; deleting local website data
+can erase inspections. Estimates should be checked against measured quantities.
