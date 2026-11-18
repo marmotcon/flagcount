@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#17263b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Maint Tally" />
+  <meta name="description" content="A fast, offline-capable maintenance inspection tally and concrete volume estimator." />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <title>Maintenance Tally · Marmot</title>
+  <style>
+    :root{--ink:#182538;--muted:#68778b;--muted2:#8290a0;--page:#f3f6f9;--card:#fff;--line:#e4ebf0;--teal:#087d77;--teal-dark:#056b66;--teal-light:#e8f6f3;--red:#b94a52;--red-light:#fcf0f0;--shadow:0 6px 20px rgba(19,35,54,.035);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--page);color-scheme:light}
+    *{box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%;background:var(--page)}
+    body{margin:0;min-height:100vh;min-height:100dvh;-webkit-tap-highlight-color:transparent}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer;touch-action:manipulation}
+    button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #8cd8d0;outline-offset:2px}
+    button:disabled{opacity:.42;cursor:default}
+    .app{width:100%;max-width:570px;min-height:100dvh;margin:auto;background:var(--page)}
+    .topbar{height:74px;display:flex;align-items:center;gap:12px;padding:12px 19px;background:#17263b;color:#fff}
+    .monogram{height:42px;width:42px;border-radius:14px;background:#284258;display:grid;place-items:center;color:#c2f3e9;font-weight:900;font-size:24px;letter-spacing:-3px;flex:0 0 auto}
+    .brand-name{font-size:12px;font-weight:750;letter-spacing:.15em;line-height:1.2;color:#b4c3d3}
+    .brand-title{font-size:19px;font-weight:800;letter-spacing:-.04em;line-height:1.25;margin-top:4px}
+    .header-status{margin-left:auto;font-size:11px;font-weight:650;display:flex;align-items:center;gap:6px;white-space:nowrap;color:#cfe3e2}
+    .status-dot{width:7px;height:7px;border-radius:100%;background:#64dbbb;box-shadow:0 0 0 3px #64dbbb20}
+    .screen-pad{padding:19px 16px 128px}
+    .page-eyebrow{font-size:11px;font-weight:850;letter-spacing:.15em;text-transform:uppercase;color:var(--teal)}
+    .page-title{font-size:27px;letter-spacing:-.055em;line-height:1.12;font-weight:850;margin:7px 0 6px}
+    .page-subtitle{color:var(--muted);font-size:13px;line-height:1.45;margin:0}
+    .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;background:#e8edf2;padding:5px;border-radius:14px;margin:20px 0 20px}
+    .tab{height:39px;border:0;border-radius:10px;background:transparent;color:#657489;font-weight:760;font-size:13px}
+    .tab.active{background:white;color:#163c50;box-shadow:0 1px 7px #152a3d12}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:17px;box-shadow:var(--shadow)}
+    .panel-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;gap:12px}
+    .panel-heading h2{font-size:16px;letter-spacing:-.02em;font-weight:820;margin:0}
+    .micro{color:var(--muted2);font-size:11px;font-weight:650}
+    .field-label{display:block;text-transform:uppercase;color:#69798a;font-size:10px;font-weight:850;letter-spacing:.11em;margin:0 0 7px}
+    .field{margin:0}
+    .field input,.field textarea{background:#f8fafc;color:var(--ink);width:100%;border:1.5px solid #e3eaf0;border-radius:12px;font-size:16px;min-height:49px;padding:12px 13px;outline:none;box-shadow:none}
+    .field input:focus,.field textarea:focus{border-color:#5cbab1;background:#fff}
+    .field input::placeholder,.field textarea::placeholder{color:#a4afba}
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+    .field-grid .date-field{grid-column:1 / -1}
+    input[type=date]{min-width:0;appearance:none;-webkit-appearance:none;min-height:49px}
+    .section-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:26px 1px 12px}
+    .section-intro h2{font-size:20px;letter-spacing:-.04em;font-weight:850;margin:0 0 4px}
+    .section-intro p{color:var(--muted);font-size:12px;line-height:1.45;margin:0}
+    .thickness-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:13px 0 9px;background:#ebf0f4;padding:10px 11px 10px 13px;border-radius:14px}
+    .thickness-row .text-title{font-size:12px;font-weight:790;display:block}
+    .thickness-row .text-caption{color:var(--muted);font-size:10px;line-height:1.4;display:block;margin-top:3px}
+    .segment{display:inline-grid;grid-template-columns:1fr 1fr;gap:2px;background:#dce5eb;border-radius:11px;padding:3px;flex:0 0 auto}
+    .segment button{border:0;background:transparent;color:#6a7989;font-size:12px;font-weight:800;padding:9px 11px;border-radius:8px}
+    .segment button.selected{background:white;color:#0a726c;box-shadow:0 1px 5px #1b34451a}
+    .count-list{display:grid;gap:10px}
+    .counter-card{display:flex;align-items:stretch;min-height:103px;border:1.5px solid var(--line);background:#fff;border-radius:17px;overflow:hidden;box-shadow:var(--shadow);transition:border-color .12s,background .12s}
+    .counter-card.active{border-color:#badbd5}
+    .counter-info{padding:16px 7px 13px 15px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:5px}
+    .counter-name{font-size:15px;font-weight:850;letter-spacing:-.025em;line-height:1.17}
+    .counter-rate{font-size:11px;color:#6e8290;line-height:1.3}
+    .counter-length{font-size:11px;font-weight:750;color:var(--teal);margin-top:3px}
+    .counter-actions{display:flex;flex:0 0 auto;gap:5px;padding:9px;align-items:stretch}
+    .minus{width:37px;border:0;border-radius:11px;background:#f0f3f6;color:#546579;font-size:26px;font-weight:450;line-height:1;align-self:stretch}
+    .plus{width:80px;min-height:84px;background:var(--teal);border:0;color:white;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:4px;flex-direction:column;box-shadow:0 3px 0 var(--teal-dark)}
+    .plus:active{transform:translateY(2px);box-shadow:0 1px 0 var(--teal-dark)}
+    .plus-symbol{font-size:25px;line-height:.9;font-weight:500}
+    .plus-count{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05}
+    .plus-label{font-size:9px;opacity:.8;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+    .extra-toggle{margin-top:10px;width:100%;min-height:43px;background:#fff;color:#3f6270;border:1px dashed #bdcdd4;border-radius:12px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:7px}
+    .extras{margin-top:10px;display:grid;gap:10px}
+    .chevron{display:inline-block;transition:transform .2s;font-size:13px}
+    .expanded .chevron{transform:rotate(180deg)}
+    .area-list{display:grid;gap:10px}
+    .area-card{display:flex;gap:12px;align-items:center;justify-content:space-between;background:white;border:1.5px solid var(--line);padding:15px;border-radius:17px;box-shadow:var(--shadow)}
+    .area-info{min-width:0}
+    .area-title{font-size:15px;font-weight:850;letter-spacing:-.025em;line-height:1.2}
+    .area-hint{font-size:11px;color:var(--muted);margin-top:6px}
+    .area-entry{width:122px;position:relative;flex:0 0 auto}
+    .area-entry input{width:100%;height:54px;border:1.5px solid #cbdadf;border-radius:12px;background:#f7fbfa;color:#0e4d4e;text-align:right;padding:0 38px 0 8px;font-weight:850;font-size:20px;outline:none;font-variant-numeric:tabular-nums}
+    .area-entry input:focus{border-color:var(--teal);background:white}
+    .area-entry span{position:absolute;right:10px;top:18px;font-size:13px;color:#69888c;font-weight:750;pointer-events:none}
+    .form-notes{margin-top:18px}
+    .field textarea{resize:vertical;min-height:72px;line-height:1.4;font-size:15px}
+    .quiet-note{margin-top:12px;color:#788998;font-size:11px;line-height:1.45;display:flex;align-items:flex-start;gap:8px}
+    .quiet-note:before{content:"i";display:grid;place-items:center;width:15px;height:15px;flex:0 0 auto;border-radius:100%;background:#e1eaed;color:#46717a;font-weight:900;font-size:11px}
+    .dock{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:570px;padding:10px 15px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.97);border-top:1px solid #dbe5eb;box-shadow:0 -9px 25px #162f4410;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    .dock-inner{display:grid;grid-template-columns:1fr 1fr 1.15fr auto;align-items:center;gap:5px}
+    .dock-stat{min-width:0}
+    .dock-label{display:block;font-size:9px;color:#7a8999;font-weight:850;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+    .dock-num{display:block;font-size:18px;font-weight:850;letter-spacing:-.045em;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.4}
+    .dock-vol .dock-num{color:var(--teal)}
+    .dock-button{min-width:83px;height:43px;padding:0 11px;border:0;border-radius:12px;color:white;background:#172b3f;font-size:11px;font-weight:800;line-height:1.2}
+    .primary-button,.secondary-button,.danger-button{display:inline-flex;gap:7px;justify-content:center;align-items:center;min-height:47px;padding:12px 14px;border:0;border-radius:12px;font-weight:780;font-size:13px}
+    .primary-button{background:var(--teal);color:white}
+    .secondary-button{background:#eaf0f4;color:#23475b}
+    .danger-button{background:var(--red-light);color:var(--red)}
+    .button-row{display:flex;gap:9px;flex-wrap:wrap}
+    .button-row>*{flex:1 1 auto}
+    .report-hero{background:#17263b;color:#fff;border-radius:20px;padding:23px 21px 19px;position:relative;overflow:hidden}
+    .report-hero:after{content:"";width:180px;height:180px;position:absolute;right:-82px;top:-107px;border-radius:100%;border:28px solid #295461;opacity:.55}
+    .report-kicker{font-size:10px;font-weight:850;color:#b7d3d4;letter-spacing:.16em;text-transform:uppercase}
+    .report-total{font-size:52px;font-weight:900;line-height:1.13;letter-spacing:-.07em;margin-top:13px;font-variant-numeric:tabular-nums}
+    .report-total small{font-size:18px;letter-spacing:-.01em;color:#a3d9d0;font-weight:800;margin-left:5px}
+    .report-meta{font-size:12px;line-height:1.5;margin-top:13px;color:#c4d2e0;overflow-wrap:anywhere}
+    .metric-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:12px 0 22px}
+    .metric{padding:14px 10px;background:white;border:1px solid var(--line);border-radius:13px;min-width:0}
+    .metric span{display:block;color:#6f8193;font-size:10px;font-weight:800;margin-bottom:7px}
+    .metric strong{font-size:19px;letter-spacing:-.045em;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .metric em{font-size:10px;color:var(--muted);font-style:normal}
+    .report-list{border:1px solid var(--line);border-radius:15px;background:white;overflow:hidden}
+    .report-item{display:grid;grid-template-columns:1fr auto;gap:14px;padding:14px 15px;border-bottom:1px solid var(--line)}
+    .report-item:last-child{border-bottom:0}
+    .report-item strong{font-weight:830;font-size:13px;line-height:1.2}
+    .report-item span{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+    .report-vol{font-weight:900;letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums;font-size:16px;align-self:center}
+    .report-vol small{font-size:10px;font-weight:750;color:var(--muted)}
+    .empty{border:1.5px dashed #cfdae0;border-radius:16px;text-align:center;padding:29px 16px;background:white;color:var(--muted);font-size:13px;line-height:1.6}
+    .empty strong{display:block;color:var(--ink);font-size:16px;margin-bottom:5px}
+    .section-label{font-size:16px;font-weight:850;letter-spacing:-.03em;margin:21px 0 12px}
+    .saved-list{display:grid;gap:11px}
+    .saved-card{border:1px solid var(--line);background:white;border-radius:16px;padding:15px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .saved-card.current{border-color:#9fcfc6;background:#fbfffe}
+    .saved-title{font-weight:840;font-size:14px;overflow-wrap:anywhere;line-height:1.35}
+    .saved-desc{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
+    .saved-buttons{display:flex;gap:5px;flex:0 0 auto}
+    .icon-button{border:0;border-radius:11px;background:#eaf0f3;color:#345060;min-width:38px;height:38px;font-size:16px;font-weight:800}
+    .icon-button.open{background:var(--teal-light);color:var(--teal)}
+    .install-help{background:#eaf4f1;border:1px solid #d3e7df;border-radius:16px;padding:17px;margin-top:18px;color:#345e5b}
+    .install-help h3{margin:0 0 8px;font-size:14px;font-weight:850;color:#204a49}
+    .install-help p{font-size:12px;line-height:1.6;margin:0}
+    .toolbar-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px}
+    .file-btn{position:relative;overflow:hidden}
+    .file-btn input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
+    .toast{position:fixed;left:50%;transform:translate(-50%,15px);bottom:calc(92px + env(safe-area-inset-bottom));background:#1f3646;color:white;padding:12px 16px;font-weight:750;font-size:12px;border-radius:12px;box-shadow:0 8px 25px #173c4a33;opacity:0;transition:opacity .15s,transform .15s;pointer-events:none;z-index:50;max-width:90vw;text-align:center}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .print-only{display:none}
+    .view[hidden],.extras[hidden],.dock[hidden]{display:none!important}
+    @media(min-width:571px){.app{border-left:1px solid #e1e7ec;border-right:1px solid #e1e7ec}.screen-pad{padding-left:22px;padding-right:22px}}
+    @media(max-width:365px){.screen-pad{padding-left:12px;padding-right:12px}.counter-name{font-size:14px}.counter-actions{padding:7px;gap:4px}.plus{width:70px}.minus{width:33px}.area-entry{width:110px}.dock-inner{gap:2px}.dock-num{font-size:16px}.dock-button{min-width:73px;padding:0 6px}}
+    @media print{
+      :root,html,body{background:white!important;color:black!important}
+      .app{max-width:none;width:100%;min-height:0;background:white;border:0}
+      .topbar,.tabs,.dock,.screen-intro,.screen-pad > .page-eyebrow,.screen-pad > .page-title,.screen-pad > .page-subtitle,.noprint,#view-tally,#view-saved,.toast{display:none!important}
+      .screen-pad{padding:0!important}
+      #view-report{display:block!important}
+      .report-hero{background:white!important;color:#122033!important;border:2px solid #2b3e50;border-radius:0;padding:18px;margin:0 0 15px}
+      .report-hero:after{display:none}
+      .report-kicker,.report-meta{color:#334155!important}
+      .report-total{font-size:38px;margin-top:8px}
+      .report-total small{color:#334155}
+      .metric{border-color:#bbb;border-radius:0}
+      .report-list{border-color:#bbb;border-radius:0}
+      .report-item{break-inside:avoid;border-color:#ddd}
+      .section-label{margin-top:15px}
+      .print-only{display:block;font-size:11px;color:#687587;margin:20px 0}
+      @page{margin:16mm;size:auto}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="monogram" aria-hidden="true">M</div>
+    <div><div class="brand-name">MARMOT CONSTRUCTION</div><div class="brand-title">Maintenance Tally</div></div>
+    <div class="header-status" id="saveStatus"><span class="status-dot"></span> Local save</div>
+  </header>
+  <div class="screen-pad">
+    <div class="page-eyebrow">Field inspection</div>
+    <h1 class="page-title" id="pageTitle">Quick scope count</h1>
+    <p class="page-subtitle" id="pageSubtitle">Tap a structure each time you mark a 1.5 m piece for replacement.</p>
+    <nav class="tabs" role="tablist" aria-label="App views">
+      <button class="tab active" id="tab-tally" data-view="tally" role="tab" aria-selected="true" type="button">Tally</button>
+      <button class="tab" id="tab-report" data-view="report" role="tab" aria-selected="false" type="button">Totals</button>
+      <button class="tab" id="tab-saved" data-view="saved" role="tab" aria-selected="false" type="button">Inspections</button>
+    </nav>
+
+    <main class="view" id="view-tally">
+      <section class="panel" aria-label="Inspection details">
+        <div class="panel-heading"><h2>Inspection details</h2><span class="micro">Autosaved on this device</span></div>
+        <div class="field-grid">
+          <label class="field"><span class="field-label">Phase</span><input id="phase" type="text" placeholder="e.g. 14" maxlength="80" autocomplete="off" /></label>
+          <label class="field"><span class="field-label">Walk</span><input id="walk" type="text" placeholder="e.g. 3" maxlength="80" autocomplete="off" /></label>
+          <label class="field date-field"><span class="field-label">Date of inspection</span><input id="inspectionDate" type="date" /></label>
+        </div>
+      </section>
+
+      <div class="section-intro"><div><h2>Tap to count</h2><p>Every tap adds one 1.5 m piece.</p></div><span class="micro" id="totalPiecesNote">0 pieces</span></div>
+      <div class="thickness-row"><div><span class="text-title">Concrete thickness</span><span class="text-caption">Sets mono and standard slab pulls</span></div><div class="segment" role="group" aria-label="Concrete thickness"><button data-thickness="100" type="button">100 mm</button><button data-thickness="125" class="selected" type="button">125 mm</button></div></div>
+      <div class="count-list" id="mainCounters"></div>
+      <button class="extra-toggle" id="toggleExtra" aria-expanded="false" type="button">Other structures <span class="chevron">⌄</span></button>
+      <div class="extras" id="extraCounters" hidden></div>
+
+      <div class="section-intro"><div><h2>Rough area</h2><p>Enter estimated square metres, not pieces.</p></div><span class="micro">m²</span></div>
+      <div class="area-list" id="areaList"></div>
+      <div class="form-notes field"><label for="notes" class="field-label">Site notes (optional)</label><textarea id="notes" placeholder="Additional scope, location notes, exceptions..." maxlength="3000"></textarea></div>
+      <div class="quiet-note">Counts and areas are estimates until verified by field measurement. Pull rates come from the attached maintenance pull sheet.</div>
+      <div class="button-row" style="margin-top:18px"><button id="clearCounts" class="secondary-button" type="button">Clear this tally</button><button id="bottomReport" class="primary-button" type="button">View final totals →</button></div>
+    </main>
+
+    <section class="view" id="view-report" hidden aria-label="Inspection totals">
+      <div class="report-hero"><div class="report-kicker">Estimated concrete replacement</div><div class="report-total" id="reportTotal">0.000<small>m³</small></div><div class="report-meta" id="reportMeta">Inspection details</div></div>
+      <div class="metric-grid"><div class="metric"><span>Pieces</span><strong id="reportPieces">0</strong></div><div class="metric"><span>Linear metres</span><strong id="reportLM">0.0</strong><em> LM</em></div><div class="metric"><span>Rough area</span><strong id="reportArea">0</strong><em> m²</em></div></div>
+      <h2 class="section-label">Structure breakdown</h2>
+      <div class="report-list" id="reportRows"></div>
+      <div class="panel noprint" style="margin-top:19px"><div class="panel-heading"><h2>Export this inspection</h2></div><div class="button-row"><button id="downloadCSV" class="primary-button" type="button">Download Excel CSV</button><button id="printReport" class="secondary-button" type="button">Print / Save PDF</button></div><div class="button-row" style="margin-top:9px"><button id="shareReport" class="secondary-button" type="button">Share summary</button><button id="editTally" class="secondary-button" type="button">Back to tally</button></div><div class="quiet-note">The CSV opens in Excel. On iPhone, Print lets you save or share a PDF from the print preview.</div></div>
+      <div class="print-only" id="printNotes"></div>
+    </section>
+
+    <section class="view" id="view-saved" hidden aria-label="Saved inspections">
+      <div class="toolbar-top"><div><div class="page-eyebrow">Saved locally</div><h2 class="section-label" style="margin:4px 0 0">Your inspections</h2></div><button id="newInspection" class="primary-button" type="button">+ New</button></div>
+      <div class="saved-list" id="savedList"></div>
+      <div class="panel" style="margin-top:19px"><div class="panel-heading"><h2>Back up your records</h2></div><p class="page-subtitle" style="margin-bottom:14px">All inspections are stored on this device only. Export a backup before clearing Safari website data or changing phones.</p><div class="button-row"><button id="backupJSON" class="secondary-button" type="button">Export backup (.json)</button><label class="secondary-button file-btn">Import backup<input id="importJSON" type="file" accept="application/json,.json" aria-label="Import inspection backup" /></label></div></div>
+      <div class="install-help"><h3>Put the app on your iPhone</h3><p>Once hosted on GitHub Pages, open its link in <strong>Safari</strong>, tap <strong>Share</strong>, then choose <strong>Add to Home Screen</strong>. The app works offline after its files are cached.</p></div>
+    </section>
+  </div>
+</div>
+<div class="dock" id="liveDock"><div class="dock-inner"><div class="dock-stat"><span class="dock-label">Pieces</span><span class="dock-num" id="dockPieces">0</span></div><div class="dock-stat"><span class="dock-label">Total LM</span><span class="dock-num" id="dockLM">0.0</span></div><div class="dock-stat dock-vol"><span class="dock-label">Est. m³</span><span class="dock-num" id="dockM3">0.000</span></div><button id="dockReport" class="dock-button" type="button">View<br/>totals →</button></div></div>
+<div class="toast" role="status" aria-live="polite" id="toast"></div>
+<script>
+(function(){
+  'use strict';
+  // Source: user's Maint Pull.xls, Sheet1, rows 4–11, columns H (100 mm) and I (125 mm).
+  // Values are cubic metres per linear metre (LM) or per square metre (m²).
+  const STRUCTURES = [
+    {id:'c250',name:'250 mm Rolled Curb',short:'250 Rolled Curb',type:'count',section:'main',rates:{100:.115,125:.115}},
+    {id:'mono15',name:'1.5 m Rolled Mono',short:'1.5 Rolled Mono',type:'count',section:'main',rates:{100:.254,125:.2915}},
+    {id:'mono20',name:'2.0 m Rolled Mono',short:'2.0 Rolled Mono',type:'count',section:'main',rates:{100:.304,125:.354}},
+    {id:'c500',name:'500 mm Rolled Curb',short:'500 Rolled Curb',type:'count',section:'extra',rates:{100:.141,125:.141}},
+    {id:'mono11',name:'1.1 m Rolled Mono',short:'1.1 Rolled Mono',type:'count',section:'extra',rates:{100:.214,125:.2415}},
+    {id:'swale',name:'600 mm Drainage Swale',short:'600 mm Swale',type:'count',section:'extra',rates:{100:.145,125:.145}},
+    {id:'separateWalk',name:'Separate Sidewalk',short:'Separate Sidewalk',type:'area',section:'main',rates:{100:.100,125:.125}},
+    {id:'flagInfill',name:'Flag / Median Infill',short:'Flag / Infill',type:'area',section:'main',rates:{100:.100,125:.125}},
+    {id:'commercial',name:'Commercial Separate Walk / Fill',short:'Commercial Walk / Fill',type:'area',section:'extra',rates:{100:.150,125:.150}}
+  ];
+  const PIECE_LENGTH=1.5;
+  const STORE='marmot-maint-tally-inspections-v1',CURRENT='marmot-maint-tally-current-v1',MORE='marmot-maint-tally-extras-v1';
+  const $=(id)=>document.getElementById(id);
+  const clampNum=(n,min=0,max=1e8)=>{n=Number(n);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):0};
+  const esc=(s)=>String(s??'').replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt=(n,dec=1)=>Number(n).toFixed(dec);
+  const pullFmt=(n)=>Number(n).toFixed(4).replace(/0+$/,'').replace(/\.$/,'');
+  const numFmt=(n)=>Number(n).toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+  const niceDate=(s)=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return 'No date';const [y,m,d]=s.split('-');return `${m}/${d}/${y}`};
+  const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+  const makeId=()=>typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():`inspection-${Date.now()}-${Math.floor(Math.random()*1e9)}`;
+  const fresh=()=>({id:makeId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),phase:'',walk:'',date:today(),thickness:125,counts:{},areas:{},notes:''});
+  const rate=(s,i)=>s.rates[i.thickness]??s.rates[125];
+  const countFor=(i,id)=>Math.floor(clampNum(i.counts?.[id],0,1000000));
+  const areaFor=(i,id)=>clampNum(i.areas?.[id]);
+  const parseArea=(v)=>clampNum(String(v).trim().replace(',','.'));
+  let storageOK=true,records=[],currentId='',extraOpen=false,view='tally',toastTimer=null;
+  function readStorage(key){try{return localStorage.getItem(key)}catch(e){storageOK=false;return null}}
+  function writeStorage(key,value){try{localStorage.setItem(key,value);return true}catch(e){storageOK=false;$('saveStatus').innerHTML='<span class="status-dot" style="background:#ffb36a"></span> Export backup';return false}}
+  function sanitize(d){
+    if(!d||typeof d!=='object'||Array.isArray(d))return null;
+    let id=(typeof d.id==='string'&&d.id.length<150)?d.id:makeId();
+    let counts={},areas={};
+    for(const s of STRUCTURES){if(s.type==='count') counts[s.id]=countFor(d,s.id);else areas[s.id]=areaFor(d,s.id)}
+    let date=typeof d.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d.date)?d.date:today();
+    return {id,createdAt:typeof d.createdAt==='string'?d.createdAt:new Date().toISOString(),updatedAt:typeof d.updatedAt==='string'?d.updatedAt:new Date().toISOString(),phase:String(d.phase??'').slice(0,80),walk:String(d.walk??'').slice(0,80),date,thickness:Number(d.thickness)===100?100:125,counts,areas,notes:String(d.notes??'').slice(0,3000)};
+  }
+  function init(){
+    try{let data=JSON.parse(readStorage(STORE)||'[]');if(Array.isArray(data))records=data.map(sanitize).filter(Boolean).slice(0,3000)}catch(e){records=[]}
+    currentId=readStorage(CURRENT)||'';
+    extraOpen=readStorage(MORE)==='yes';
+    if(!records.length){let f=fresh();records=[f];currentId=f.id;persist()}
+    if(!records.some(r=>r.id===currentId))currentId=records[0].id;
+    $('saveStatus').innerHTML=storageOK?'<span class="status-dot"></span> Saved locally':'<span class="status-dot" style="background:#ffb36a"></span> Export backup';
+    bindEvents();renderAll();
+    if('serviceWorker' in navigator&&(/https:/.test(location.protocol)||location.hostname==='localhost')){
+      window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+    }
+  }
+  const active=()=>records.find(r=>r.id===currentId)||records[0];
+  function persist(){let i=active();if(i)i.updatedAt=new Date().toISOString();writeStorage(STORE,JSON.stringify(records));writeStorage(CURRENT,currentId)}
+  function update(changes){Object.assign(active(),changes);persist();updateReadouts()}
+  function calculate(i){
+    let pieces=0,lm=0,area=0,m3=0,items=[];
+    for(const s of STRUCTURES){
+      const q=s.type==='count'?countFor(i,s.id):areaFor(i,s.id);
+      if(!q)continue;
+      const length=s.type==='count'?q*PIECE_LENGTH:0;
+      const volume=(s.type==='count'?length:q)*rate(s,i);
+      if(s.type==='count'){pieces+=q;lm+=length}else{area+=q}
+      m3+=volume;items.push({s,quantity:q,lm:length,volume,rate:rate(s,i)});
+    }
+    return{pieces,lm,area,m3,items};
+  }
+  function inspectionName(i){let parts=[];if(i.phase.trim())parts.push('Phase '+i.phase.trim());if(i.walk.trim())parts.push('Walk '+i.walk.trim());return parts.join(' · ')||'Untitled inspection'}
+  function countHTML(s,i){let count=countFor(i,s.id),lm=count*PIECE_LENGTH;return `<div class="counter-card${count?' active':''}" data-card="${s.id}"><div class="counter-info"><div class="counter-name">${esc(s.name)}</div><div class="counter-rate">Pull: ${pullFmt(rate(s,i))} m³/LM</div><div class="counter-length" data-length="${s.id}">${numFmt(lm)} LM marked</div></div><div class="counter-actions"><button class="minus" type="button" data-adjust="-1" data-id="${s.id}" aria-label="Remove one piece of ${esc(s.name)}" ${count?'':'disabled'}>−</button><button class="plus" type="button" data-adjust="1" data-id="${s.id}" aria-label="Add one piece of ${esc(s.name)}"><span class="plus-symbol">+</span><span class="plus-count" data-count="${s.id}">${count}</span><span class="plus-label">Pieces</span></button></div></div>`}
+  function areaHTML(s,i){let q=areaFor(i,s.id);return `<label class="area-card"><div class="area-info"><div class="area-title">${esc(s.name)}</div><div class="area-hint">Pull: ${pullFmt(rate(s,i))} m³/m²</div></div><div class="area-entry"><input data-area="${s.id}" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="${q?esc(numFmt(q)):''}" aria-label="${esc(s.name)} estimated area in square metres" /><span>m²</span></div></label>`}
+  function renderCounters(){let i=active();$('mainCounters').innerHTML=STRUCTURES.filter(s=>s.type==='count'&&s.section==='main').map(s=>countHTML(s,i)).join('');$('extraCounters').innerHTML=STRUCTURES.filter(s=>s.type==='count'&&s.section==='extra').map(s=>countHTML(s,i)).join('');$('extraCounters').hidden=!extraOpen;$('toggleExtra').classList.toggle('expanded',extraOpen);$('toggleExtra').setAttribute('aria-expanded',String(extraOpen));$('areaList').innerHTML=STRUCTURES.filter(s=>s.type==='area').map(s=>`<div${s.section==='extra'?' data-extra-area="true"':''}${s.section==='extra'&&!extraOpen?' hidden':''}>${areaHTML(s,i)}</div>`).join('')}
+  function renderForm(){let i=active();$('phase').value=i.phase;$('walk').value=i.walk;$('inspectionDate').value=i.date;$('notes').value=i.notes;for(const b of document.querySelectorAll('[data-thickness]')){b.classList.toggle('selected',Number(b.dataset.thickness)===i.thickness)};renderCounters();updateReadouts()}
+  function updateReadouts(){let i=active(),t=calculate(i);$('dockPieces').textContent=t.pieces;$('dockLM').textContent=fmt(t.lm,1);$('dockM3').textContent=fmt(t.m3,3);$('totalPiecesNote').textContent=t.pieces+' '+(t.pieces===1?'piece':'pieces');}
+  function renderReport(){let i=active(),t=calculate(i);$('reportTotal').innerHTML=`${fmt(t.m3,3)}<small>m³</small>`;$('reportMeta').textContent=inspectionName(i)+'  ·  '+niceDate(i.date)+'  ·  '+i.thickness+' mm slab selection';$('reportPieces').textContent=t.pieces;$('reportLM').textContent=fmt(t.lm,1);$('reportArea').textContent=numFmt(t.area);
+    $('reportRows').innerHTML=t.items.length?t.items.map(x=>`<div class="report-item"><div><strong>${esc(x.s.name)}</strong><span>${x.s.type==='count'?`${x.quantity} piece${x.quantity===1?'':'s'} × 1.5 m = ${fmt(x.lm,1)} LM × ${pullFmt(x.rate)} m³/LM`:`${numFmt(x.quantity)} m² × ${pullFmt(x.rate)} m³/m²`}</span></div><div class="report-vol">${fmt(x.volume,3)} <small>m³</small></div></div>`).join(''):'<div class="empty"><strong>No quantities entered yet</strong>Go to Tally and start adding pieces or square metres.</div>';
+    $('printNotes').textContent=i.notes?('Field notes: '+i.notes):'Estimated quantities based on visual field tally; confirm before ordering concrete.';
+  }
+  function renderSaved(){
+    const sorted=[...records].sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    $('savedList').innerHTML=sorted.map(i=>{let t=calculate(i);return `<div class="saved-card${i.id===currentId?' current':''}"><div style="min-width:0"><div class="saved-title">${esc(inspectionName(i))}</div><div class="saved-desc">${niceDate(i.date)} · ${t.pieces} pcs · ${fmt(t.m3,3)} m³ ${i.id===currentId?'· Current':''}</div></div><div class="saved-buttons"><button class="icon-button open" type="button" data-open="${esc(i.id)}" aria-label="Open ${esc(inspectionName(i))}">↗</button><button class="icon-button" type="button" data-delete="${esc(i.id)}" aria-label="Delete ${esc(inspectionName(i))}">×</button></div></div>`}).join('');
+  }
+  function renderAll(){renderForm();renderReport();renderSaved()}
+  function setView(next){view=next;for(const name of ['tally','report','saved']){$('view-'+name).hidden=next!==name;let tab=$('tab-'+name);tab.classList.toggle('active',next===name);tab.setAttribute('aria-selected',String(next===name));tab.tabIndex=next===name?0:-1;}$('liveDock').hidden=next!=='tally';$('pageTitle').textContent=next==='tally'?'Quick scope count':next==='report'?'Inspection totals':'Inspection history';$('pageSubtitle').textContent=next==='tally'?'Tap a structure each time you mark a 1.5 m piece for replacement.':next==='report'?'Your live quantity and concrete volume estimate.':'Open an existing inspection or start a new one.';if(next==='report')renderReport();if(next==='saved')renderSaved();window.scrollTo(0,0)}
+  function tapCount(id,adjust){let s=STRUCTURES.find(x=>x.id===id&&x.type==='count');if(!s)return;let i=active(),old=countFor(i,id),next=Math.max(0,Math.min(1000000,old+adjust));if(next===old)return;i.counts[id]=next;persist();let card=document.querySelector(`[data-card="${id}"]`);if(card){card.classList.toggle('active',next>0);card.querySelector(`[data-count="${id}"]`).textContent=next;card.querySelector(`[data-length="${id}"]`).textContent=numFmt(next*1.5)+' LM marked';card.querySelector('.minus').disabled=next===0;}updateReadouts();if(navigator.vibrate&&adjust>0)try{navigator.vibrate(10)}catch(e){}}
+  function toast(text){const t=$('toast');t.textContent=text;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1900)}
+  function newInspection(){const n=fresh();records.push(n);currentId=n.id;persist();renderAll();setView('tally');toast('New inspection created')}
+  function clearTally(){if(!window.confirm('Clear all counts and rough areas for this inspection? The phase, walk, and notes will stay.'))return;let i=active();i.counts={};i.areas={};persist();renderAll();toast('Tally cleared')}
+  function deleteInspection(id){let i=records.find(r=>r.id===id);if(!i)return;if(!window.confirm('Delete '+inspectionName(i)+'? This cannot be undone.'))return;records=records.filter(r=>r.id!==id);if(!records.length){let f=fresh();records=[f];currentId=f.id}else if(currentId===id)currentId=records[0].id;persist();renderAll();toast('Inspection deleted')}
+  function fileName(i,suffix){let part=[i.phase?'phase-'+i.phase:'phase-unknown',i.walk?'walk-'+i.walk:'walk-unknown',i.date].join('_').replace(/[^a-zA-Z0-9_-]/g,'-');return 'maintenance_tally_'+part+suffix}
+  function download(filename,contents,type){let blob=new Blob([contents],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000)}
+  function csvQuote(s){return '"'+String(s??'').replace(/"/g,'""')+'"'}
+  function csvExport(){const i=active(),t=calculate(i);let rows=[['Phase','Walk','Inspection date','Thickness mm','Structure','Unit','Pieces','Linear metres','Area m2','Pull m3 per unit','Volume m3']];for(const s of STRUCTURES){let q=s.type==='count'?countFor(i,s.id):areaFor(i,s.id),length=s.type==='count'?q*1.5:0,volume=(s.type==='count'?length:q)*rate(s,i);rows.push([i.phase,i.walk,i.date,i.thickness,s.name,s.type==='count'?'LM':'m2',s.type==='count'?q:'',s.type==='count'?length.toFixed(2):'',s.type==='area'?q.toFixed(2):'',rate(s,i),volume.toFixed(4)])}rows.push(['TOTAL','','','','','',''+t.pieces,t.lm.toFixed(2),t.area.toFixed(2),'',t.m3.toFixed(4)]);rows.push(['NOTES',i.notes]);download(fileName(i,'.csv'),'\ufeff'+rows.map(r=>r.map(csvQuote).join(',')).join('\r\n'),'text/csv;charset=utf-8');toast('Excel-compatible CSV exported')}
+  function reportText(){let i=active(),t=calculate(i);let lines=[`MAINTENANCE INSPECTION TALLY`,inspectionName(i),`Date: ${niceDate(i.date)} | Thickness: ${i.thickness} mm`,''];for(let item of t.items){lines.push(`${item.s.name}: ${item.s.type==='count'?`${item.quantity} pcs / ${fmt(item.lm,1)} LM`:`${numFmt(item.quantity)} m²`} → ${fmt(item.volume,3)} m³`)}lines.push('',`TOTAL: ${t.pieces} pieces / ${fmt(t.lm,1)} LM / ${numFmt(t.area)} m²`, `ESTIMATED CONCRETE: ${fmt(t.m3,3)} m³`);if(i.notes)lines.push('',`Notes: ${i.notes}`);return lines.join('\n')}
+  async function shareReport(){const text=reportText();if(navigator.share){try{await navigator.share({title:'Maintenance Tally',text});return}catch(e){if(e.name==='AbortError')return}}if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(text);toast('Summary copied to clipboard');return}catch(e){}}window.prompt('Copy this summary:',text)}
+  function backup(){download('maintenance_tally_backup_'+today()+'.json',JSON.stringify({app:'Marmot Maintenance Tally',version:1,exportedAt:new Date().toISOString(),inspections:records},null,2),'application/json;charset=utf-8');toast('Backup downloaded')}
+  async function importBackup(file){if(!file)return;try{let content=await file.text();let parsed=JSON.parse(content);if(!parsed||!Array.isArray(parsed.inspections)||parsed.inspections.length>3000)throw new Error('Invalid backup format');let imported=parsed.inspections.map(sanitize).filter(Boolean);if(!imported.length)throw new Error('No inspections found');if(!window.confirm(`Import ${imported.length} inspection(s)? Matching records will use the newer version.`))return;const map=new Map(records.map(r=>[r.id,r]));for(let r of imported){let old=map.get(r.id);if(!old||String(r.updatedAt)>String(old.updatedAt))map.set(r.id,r)}records=[...map.values()];persist();renderAll();toast(`${imported.length} inspection(s) imported`)}catch(e){window.alert('Could not import backup: '+e.message)}finally{$('importJSON').value=''}}
+  function bindEvents(){
+    document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+    for(let [id,key] of [['phase','phase'],['walk','walk'],['inspectionDate','date'],['notes','notes']]){$(id).addEventListener('input',(e)=>update({[key]:e.target.value}));$(id).addEventListener('change',(e)=>update({[key]:e.target.value}))}
+    document.querySelectorAll('[data-thickness]').forEach(b=>b.addEventListener('click',()=>{let i=active();i.thickness=Number(b.dataset.thickness);persist();renderForm();toast('Pull values updated')}));
+    document.addEventListener('click',(e)=>{let b=e.target.closest('[data-adjust]');if(b){tapCount(b.dataset.id,Number(b.dataset.adjust));return}let op=e.target.closest('[data-open]');if(op){currentId=op.dataset.open;writeStorage(CURRENT,currentId);renderAll();setView('tally');return}let del=e.target.closest('[data-delete]');if(del){deleteInspection(del.dataset.delete);return}});
+    $('areaList').addEventListener('input',(e)=>{if(!e.target.matches('[data-area]'))return;active().areas[e.target.dataset.area]=parseArea(e.target.value);persist();updateReadouts()});
+    $('areaList').addEventListener('blur',(e)=>{if(!e.target.matches('[data-area]'))return;let val=areaFor(active(),e.target.dataset.area);e.target.value=val?numFmt(val):''},true);
+    $('toggleExtra').addEventListener('click',()=>{extraOpen=!extraOpen;writeStorage(MORE,extraOpen?'yes':'no');renderCounters()});
+    $('clearCounts').addEventListener('click',clearTally);
+    $('bottomReport').addEventListener('click',()=>setView('report'));
+    $('dockReport').addEventListener('click',()=>setView('report'));
+    $('editTally').addEventListener('click',()=>setView('tally'));
+    $('newInspection').addEventListener('click',newInspection);
+    $('downloadCSV').addEventListener('click',csvExport);
+    $('printReport').addEventListener('click',()=>{setView('report');setTimeout(()=>window.print(),70)});
+    $('shareReport').addEventListener('click',shareReport);
+    $('backupJSON').addEventListener('click',backup);
+    $('importJSON').addEventListener('change',(e)=>importBackup(e.target.files?.[0]));
+    window.addEventListener('pagehide',()=>{if(records.length)persist()});
+  }
+  init();
+})();
+</script>
+</body>
+</html>
